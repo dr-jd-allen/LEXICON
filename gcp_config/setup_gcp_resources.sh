@@ -5,7 +5,7 @@
 set -e
 
 # Configuration
-PROJECT_ID=${GCP_PROJECT_ID:-"your-project-id"}
+PROJECT_ID=${GCP_PROJECT_ID:-"spinwheel-464709"}
 REGION=${GCP_REGION:-"us-central1"}
 SERVICE_ACCOUNT_NAME="lexicon-sa"
 CLOUD_SQL_INSTANCE="lexicon-db"

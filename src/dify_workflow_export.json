@@ -1,0 +1,350 @@
+{
+  "version": "0.1.1",
+  "kind": "app",
+  "app": {
+    "name": "LEXICON: Legal Expertise with Contextual Intelligence",
+    "mode": "workflow",
+    "icon": "🏛️",
+    "icon_background": "#E0F2FE",
+    "description": "Multi-step agentic AI workflow for generating Daubert/Frye motions, other motions in limine (MIL), and oppositions to MIL",
+    "use_icon_as_answer_icon": false
+  },
+  "workflow": {
+    "nodes": [
+      {
+        "id": "start",
+        "position": {
+          "x": 80,
+          "y": 282
+        },
+        "type": "start",
+        "data": {
+          "title": "Start",
+          "type": "start",
+          "variables": [
+            {
+              "variable": "brief_type",
+              "type": "select",
+              "required": true,
+              "label": "Type of Motion",
+              "description": "Type of motion to generate",
+              "options": [
+                "Daubert/Frye motion",
+                "Other motions in limine",
+                "Opposition to MIL"
+              ],
+              "default": "",
+              "max_length": 100
+            },
+            {
+              "variable": "expert_name",
+              "type": "text-input",
+              "required": true,
+              "label": "Expert Name",
+              "description": "Name of the expert witness",
+              "default": "",
+              "max_length": 100
+            },
+            {
+              "variable": "case_file_list",
+              "type": "files",
+              "required": true,
+              "label": "Case Files",
+              "description": "Upload case files (PDFs, DOCX, TXT)",
+              "allowed_file_types": [".pdf", ".docx", ".txt"],
+              "max_file_count": 10
+            },
+            {
+              "variable": "user_ID",
+              "type": "text-input",
+              "required": true,
+              "label": "LEXIS-NEXIS Username",
+              "description": "Username for LEXIS-NEXIS access",
+              "default": "Brown, Robert4",
+              "max_length": 50
+            },
+            {
+              "variable": "database_password",
+              "type": "password",
+              "required": true,
+              "label": "LEXIS-NEXIS Password",
+              "description": "Password for secure access",
+              "default": "baileYI",
+              "max_length": 50
+            },
+            {
+              "variable": "jurisdiction",
+              "type": "select",
+              "required": true,
+              "label": "Jurisdiction",
+              "description": "Select applicable jurisdictions",
+              "options": [
+                "Indiana",
+                "Illinois",
+                "Federal"
+              ],
+              "multiple": true,
+              "default": []
+            }
+          ]
+        }
+      },
+      {
+        "id": "research_agent",
+        "position": {
+          "x": 384,
+          "y": 282
+        },
+        "type": "llm",
+        "data": {
+          "title": "Research Agent",
+          "desc": "Deep analysis of expert witness testimony",
+          "type": "llm",
+          "model": {
+            "provider": "openai",
+            "name": "o3-deep-research-2025-06-26",
+            "mode": "chat",
+            "completion_params": {
+              "temperature": 0.7,
+              "top_p": 0.95,
+              "max_tokens": 10000,
+              "presence_penalty": 0,
+              "frequency_penalty": 0,
+              "stop": []
+            }
+          },
+          "prompt": {
+            "text": "You are an AI Legal Analyst specializing in the critical evaluation of expert witness testimony for litigation. Your purpose is to conduct a deep, multi-document analysis of an expert witness and their stated opinions. You must be meticulous, objective, and structure your output for immediate use by a trial attorney.\n\nYour analysis will be based on the provided {{#context#}} case files (which may include expert reports, deposition transcripts, CVs, scientific articles, etc.).\n\n**Primary Objective:** Deconstruct the testimony of **Expert Name: {{expert_name}}** in **Jurisdiction: {{jurisdiction}}**\n\n**Output Formatting:**\n- Use Markdown for all document formatting\n- Adhere to the latest version of MLA style for citations\n- Use `#` for main title, `##` for major sections, `###` for sub-sections\n- Use bolding (`**text**`) for key terms and italics (*text*) for direct quotes\n- Include page/line citations in format: `[Report p.12]` or `[Depo 45:12-18]`\n- Begin with `## 🚨 CRITICAL FLAGS SUMMARY 🚨` listing top 3-5 vulnerabilities\n\n{% if brief_type == \"Daubert/Frye motion\" %}\n# Daubert/Frye Motion Analysis: Expert {{expert_name}}\n\n## 🚨 CRITICAL FLAGS SUMMARY 🚨\n[Synthesize the most damaging vulnerabilities]\n\n## I. Expert Qualifications & Potential Bias\n- **Prior Testimony History:** List all known prior cases\n- **Prior Challenges:** Any Daubert challenges or exclusions\n- **Financial Bias:** Fee structure, % income from litigation\n- **CV Inconsistencies:** Discrepancies between CV and deposition\n\n## II. Opinion & Methodology Deconstruction (Daubert Factors)\n\n### A. Summary of Stated Opinions\n- Extract each distinct opinion with direct quotes\n- Identify \"fit\" language connecting opinion to case facts\n\n### B. Factor 1: Testability / Falsifiability\n- **Stated Methodology:** Quote step-by-step description\n- **Hypothesis:** Is core hypothesis explicitly stated and falsifiable?\n- **Assumptions:** List all key assumptions with citations\n\n### C. Factor 2: Peer Review & Publication\n- **Supporting Literature:** Key peer-reviewed articles cited\n- **Contradictory Literature:** Studies that challenge methodology\n- **Self-Citation:** Frequency and concern level\n- **Litigation Science:** Is method primarily used in court vs. clinical practice?\n\n### D. Factor 3: Known or Potential Error Rate\n- **Stated Error Rate:** Quote any numerical/qualitative error rates\n- **Missing Error Rate:** If absent, state: **\"Expert failed to provide error rate\"**\n- **Accuracy Variables:** Factors expert admits affect accuracy\n\n### E. Factor 4: Standards & Controls\n- **Governing Standards:** Industry/professional standards (ASTM, ISO, etc.)\n- **Deviations:** Compare methodology to standards, note deviations\n\n### F. Factor 5: General Acceptance\n- **Claims of Acceptance:** Quote \"generally accepted\" claims\n- **Limited Acceptance Evidence:** Novel, controversial, or minority view indicators\n\n### G. Temporal Analysis\n- **Testing Timeline:** When performed relative to injury\n- **Opinion Evolution:** Changes from report to deposition\n- **Critical Gaps:** Missing time periods in records\n\n## III. Cross-Document Contradictions\n- **Report vs. Deposition:** Side-by-side contradictions\n- **Fact Conflicts:** Where assumptions contradict case facts\n\n## IV. {{jurisdiction}} Specific Considerations\n- **Legal Standard:** [Daubert/Frye requirements in jurisdiction]\n- **Key State Precedents:** Relevant admissibility cases\n- **Local Rules:** Special expert disclosure requirements\n\n{% elif brief_type == \"Other motions in limine\" %}\n# Motion In Limine Analysis: Expert {{expert_name}}\n\n## 🚨 CRITICAL FLAGS SUMMARY 🚨\n[Synthesize most significant relevance/prejudice concerns]\n\n## I. Relevance Analysis (FRE 401 & 402)\n- **Case Fact Connection:** How each opinion relates to disputed facts\n- **Legal Conclusion Risk:** Opinions that invade jury's province\n\n## II. Unfair Prejudice & Confusion (FRE 403)\n- **Inflammatory Language:** Emotionally charged statements\n- **Jury Confusion Risk:** Topics within common understanding\n- **403 Balancing:** Probative value vs. prejudicial effect\n\n## III. Qualifications & Scope\n- **Opinion-Specific Credentials:** Match each opinion to expertise\n- **Proposed Testimony Limits:** Bulleted scope restrictions\n\n## IV. {{jurisdiction}} Specific Standards\n- **State Evidence Rules:** Deviations from federal rules\n- **Precedent on Scope:** State cases limiting expert testimony\n\n{% elif brief_type == \"Opposition to MIL\" %}\n# Opposition to Motion in Limine: Defending {{expert_name}}\n\n## 🚨 KEY STRENGTHS SUMMARY 🚨\n[Highlight strongest defensible aspects]\n\n## I. Methodology Validation\n- **Scientific Support:** Peer-reviewed validation\n- **Acceptable Error Rates:** Context showing reliability\n- **Standards Compliance:** Adherence to professional standards\n\n## II. Qualifications & Fit\n- **Opinion-Specific Expertise:** CV support for each opinion\n- **Jury Assistance:** How testimony clarifies complex evidence\n\n## III. Preemptive Rebuttals\n- **\"Novel Method\" Defense:** Evidence of established use\n- **\"Biased Expert\" Defense:** Balanced testimony history\n- **\"Lack of Fit\" Defense:** Clear connection to case facts\n\n## IV. {{jurisdiction}} Supportive Precedent\n- **Favorable Admissibility Rulings:** Similar experts/methods admitted\n- **Liberal Admission Standard:** State preference for jury consideration\n\n{% endif %}\n\n## V. Trial Strategy Implications\n- **Key Cross-Examination Themes:** Top 3 attack vectors\n- **Demonstrative Evidence Vulnerabilities:** Visual aids that expose flaws\n- **LEXIS-NEXIS Research Priorities:** Specific searches needed for precedent\n\n---\n**Analysis Complete**"
+          },
+          "context": {
+            "enabled": true,
+            "dataset_configs": [
+              {
+                "dataset": {
+                  "enabled": true,
+                  "type": "knowledge",
+                  "id": ""
+                },
+                "retrieval_model": "multiple_retrieval",
+                "top_k": 30,
+                "score_threshold": 0.65,
+                "reranking_model": {
+                  "enabled": true,
+                  "provider": "cohere",
+                  "model": "rerank-2"
+                }
+              }
+            ]
+          },
+          "tools": [
+            {
+              "type": "web_search",
+              "enabled": true
+            },
+            {
+              "type": "knowledge_retrieval",
+              "enabled": true
+            }
+          ],
+          "memory": {
+            "role_prefix": {
+              "user": "Attorney",
+              "assistant": "Legal Analyst"
+            }
+          }
+        }
+      },
+      {
+        "id": "find_contradictions",
+        "position": {
+          "x": 688,
+          "y": 282
+        },
+        "type": "llm",
+        "data": {
+          "title": "Find Contradictions",
+          "desc": "Identify contradictions and inconsistencies",
+          "type": "llm",
+          "model": {
+            "provider": "openai",
+            "name": "gpt-4-turbo-preview",
+            "mode": "chat",
+            "completion_params": {
+              "temperature": 0.2,
+              "top_p": 0.9,
+              "max_tokens": 4000
+            }
+          },
+          "prompt": {
+            "text": "You are a forensic legal analyst specializing in finding contradictions and inconsistencies in expert testimony.\n\n**Input from Previous Analysis:**\n{{research_agent.text}}\n\n**Your Task:** Search through the case file knowledge base for contradictions, inconsistencies, and omissions that undermine the expert's opinions.\n\n**Focus Areas:**\n\n1. **Internal Contradictions**\n   - Expert report vs. deposition testimony\n   - Earlier statements vs. later statements\n   - CV claims vs. actual testimony\n\n2. **Factual Contradictions**\n   - Expert assumptions vs. case facts\n   - Timeline conflicts\n   - Medical history discrepancies\n\n3. **Methodological Inconsistencies**\n   - Stated methodology vs. actual procedures\n   - Cherry-picked data or tests\n   - Ignored negative findings\n\n4. **Omissions**\n   - Missing differential diagnoses\n   - Unconsidered alternative causes\n   - Ignored confounding factors\n\n**Output Format:**\n## 🚨 CONTRADICTION SUMMARY\n\n### Critical Contradictions\n[List top 3-5 most damaging contradictions]\n\n### Detailed Findings\n\n#### 1. [Contradiction Type]\n- **What Expert Stated:** [Quote with citation]\n- **Contradicting Evidence:** [Quote with citation]\n- **Impact:** [How this undermines the opinion]\n\n[Continue for each contradiction found]\n\n### Missing Considerations\n- [List key factors the expert failed to address]\n\n**Search the knowledge base thoroughly for any evidence that contradicts or undermines the expert's positions identified in the previous analysis.**"
+          },
+          "context": {
+            "enabled": true,
+            "dataset_configs": [
+              {
+                "dataset": {
+                  "enabled": true,
+                  "type": "knowledge"
+                },
+                "retrieval_model": "multiple_retrieval",
+                "top_k": 20,
+                "score_threshold": 0.7
+              }
+            ]
+          },
+          "tools": [
+            {
+              "type": "knowledge_retrieval",
+              "enabled": true
+            }
+          ]
+        }
+      },
+      {
+        "id": "find_precedent",
+        "position": {
+          "x": 992,
+          "y": 282
+        },
+        "type": "llm",
+        "data": {
+          "title": "Find Precedent",
+          "desc": "Search for supporting legal precedent",
+          "type": "llm",
+          "model": {
+            "provider": "openai",
+            "name": "gpt-4-turbo-preview",
+            "mode": "chat",
+            "completion_params": {
+              "temperature": 0.3,
+              "top_p": 0.95,
+              "max_tokens": 6000
+            }
+          },
+          "prompt": {
+            "text": "You are a legal research specialist focusing on finding precedent that supports challenging expert witness testimony.\n\n**Expert Analysis Summary:**\n{{research_agent.text}}\n\n**Contradictions Found:**\n{{find_contradictions.text}}\n\n**Jurisdiction:** {{jurisdiction}}\n\n**Your Task:** Search for precedent cases that:\n\n1. **Challenge Similar Methodologies**\n   - Cases excluding experts using similar techniques\n   - Rulings on specific Daubert/Frye factors\n   - Appellate decisions on methodology reliability\n\n2. **Address Expert Qualifications**\n   - Cases limiting expert testimony scope\n   - Rulings on \"professional witness\" bias\n   - Decisions on expertise-opinion mismatch\n\n3. **Support Exclusion Arguments**\n   - Precedent on lack of fit to case facts\n   - Rulings on speculative opinions\n   - Cases excluding cumulative expert testimony\n\n**Search Parameters:**\n- **Jurisdictions:** {{jurisdiction}} (prioritize), Federal courts, persuasive authority\n- **Time Frame:** Last 10 years (prioritize recent decisions)\n- **Keywords:** Based on specific methodologies and issues identified\n\n**Output Format:**\n\n## LEGAL PRECEDENT SUPPORTING EXCLUSION\n\n### Directly On-Point Cases\n\n#### [Case Name, Citation, Year]\n- **Court:** [Jurisdiction and level]\n- **Holding:** [Key ruling on expert admissibility]\n- **Relevant Quote:** \"[Direct quote from opinion]\"\n- **Application:** [How this applies to current expert]\n\n### Methodology-Specific Precedent\n\n#### [Methodology Type] Challenges\n[List cases challenging this specific methodology]\n\n### Persuasive Authority\n[Cases from other jurisdictions that may be persuasive]\n\n### Strategic Citations\n- **Strongest Precedent:** [Top 3 cases to lead with]\n- **Distinguish Opposition Cases:** [Anticipated cases opposition may cite]\n\n**Focus on finding the most recent and directly applicable precedent from the specified jurisdictions.**"
+          },
+          "tools": [
+            {
+              "type": "api",
+              "enabled": true,
+              "api": {
+                "id": "lexis_nexis_api",
+                "name": "LEXIS-NEXIS Search",
+                "method": "post",
+                "url": "https://api.lexisnexis.com/v1/search"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "id": "draft_argument",
+        "position": {
+          "x": 1296,
+          "y": 282
+        },
+        "type": "llm",
+        "data": {
+          "title": "Draft Argument",
+          "desc": "Generate the legal argument",
+          "type": "llm",
+          "model": {
+            "provider": "openai",
+            "name": "gpt-4-turbo-preview",
+            "mode": "chat",
+            "completion_params": {
+              "temperature": 0.4,
+              "top_p": 0.95,
+              "max_tokens": 8000
+            }
+          },
+          "prompt": {
+            "text": "You are a senior litigation attorney drafting the argument section of a {{brief_type}}.\n\n**Comprehensive Analysis:**\n- Expert Analysis: {{research_agent.text}}\n- Contradictions: {{find_contradictions.text}}\n- Legal Precedent: {{find_precedent.text}}\n\n**Draft Requirements:**\n1. Use formal legal writing style\n2. Apply MLA citation format for all references\n3. Structure arguments from strongest to weakest\n4. Anticipate and address counterarguments\n5. Use persuasive language appropriate for judicial audience\n\n**Argument Structure:**\n\n{% if brief_type == \"Daubert/Frye motion\" %}\n\n## ARGUMENT\n\n### I. INTRODUCTION\n[2-3 paragraphs setting up why exclusion is warranted]\n\n### II. [EXPERT NAME]'S OPINIONS FAIL THE DAUBERT/FRYE STANDARD\n\n#### A. The Methodology Lacks Scientific Reliability\n[Address each Daubert factor with specific examples]\n\n#### B. The Expert's Qualifications Do Not Match the Proffered Opinions\n[Detail mismatches between expertise and testimony]\n\n#### C. The Opinions Do Not \"Fit\" the Facts of This Case\n[Explain disconnect between opinions and case facts]\n\n### III. THE EXPERT'S TESTIMONY CONTAINS FATAL CONTRADICTIONS\n[Detail key contradictions with evidence citations]\n\n### IV. ESTABLISHED PRECEDENT MANDATES EXCLUSION\n\n#### A. This Court Has Previously Excluded Similar Testimony\n[Cite local precedent]\n\n#### B. Courts Nationwide Reject Such Methodologies\n[Cite persuasive authority]\n\n### V. THE PROBATIVE VALUE IS SUBSTANTIALLY OUTWEIGHED BY THE DANGER OF UNFAIR PREJUDICE\n[403 balancing analysis if applicable]\n\n### VI. CONCLUSION\n[Strong closing arguing for complete exclusion]\n\n{% elif brief_type == \"Other motions in limine\" %}\n\n## ARGUMENT\n\n### I. INTRODUCTION\n[Set up specific prejudice/relevance concerns]\n\n### II. THE EXPERT'S TESTIMONY EXCEEDS PERMISSIBLE BOUNDS\n\n#### A. Irrelevant Opinions Should Be Excluded\n[FRE 401/402 analysis]\n\n#### B. The Testimony Will Confuse and Mislead the Jury\n[FRE 403 analysis]\n\n### III. LIMITING INSTRUCTIONS CANNOT CURE THE PREJUDICE\n[Explain why partial exclusion insufficient]\n\n### IV. CONCLUSION\n[Request specific relief]\n\n{% elif brief_type == \"Opposition to MIL\" %}\n\n## ARGUMENT\n\n### I. INTRODUCTION\n[Frame expert's importance to case]\n\n### II. THE EXPERT'S METHODOLOGY SATISFIES ALL RELIABILITY REQUIREMENTS\n\n#### A. The Techniques Are Scientifically Valid\n[Address each Daubert factor favorably]\n\n#### B. The Expert Is Highly Qualified\n[Detail credentials and experience]\n\n### III. THE TESTIMONY WILL ASSIST THE TRIER OF FACT\n[Explain complexity requiring expert guidance]\n\n### IV. THE MOTION'S CRITICISMS GO TO WEIGHT, NOT ADMISSIBILITY\n[Argue cross-examination is proper remedy]\n\n### V. PRECEDENT SUPPORTS ADMISSION\n[Cite favorable cases]\n\n### VI. CONCLUSION\n[Argue for denial of motion]\n\n{% endif %}\n\n**Remember:**\n- Every assertion must have evidentiary support\n- Use persuasive transitions between arguments\n- Maintain professional tone throughout\n- End with specific relief requested"
+          }
+        }
+      },
+      {
+        "id": "end",
+        "position": {
+          "x": 1600,
+          "y": 282
+        },
+        "type": "end",
+        "data": {
+          "title": "End",
+          "type": "end",
+          "outputs": [
+            {
+              "value_selector": ["draft_argument", "text"],
+              "variable": "motion_text",
+              "label": "Final Motion Text"
+            },
+            {
+              "value_selector": ["research_agent", "text"],
+              "variable": "analysis_summary",
+              "label": "Expert Analysis Summary"
+            },
+            {
+              "value_selector": ["find_contradictions", "text"],
+              "variable": "contradictions_found",
+              "label": "Contradictions Found"
+            },
+            {
+              "value_selector": ["find_precedent", "text"],
+              "variable": "precedent_research",
+              "label": "Legal Precedent Research"
+            }
+          ]
+        }
+      }
+    ],
+    "edges": [
+      {
+        "id": "start-research_agent",
+        "source": "start",
+        "sourceHandle": "source",
+        "target": "research_agent",
+        "targetHandle": "target",
+        "type": "custom"
+      },
+      {
+        "id": "research_agent-find_contradictions",
+        "source": "research_agent",
+        "sourceHandle": "source",
+        "target": "find_contradictions",
+        "targetHandle": "target",
+        "type": "custom"
+      },
+      {
+        "id": "find_contradictions-find_precedent",
+        "source": "find_contradictions",
+        "sourceHandle": "source",
+        "target": "find_precedent",
+        "targetHandle": "target",
+        "type": "custom"
+      },
+      {
+        "id": "find_precedent-draft_argument",
+        "source": "find_precedent",
+        "sourceHandle": "source",
+        "target": "draft_argument",
+        "targetHandle": "target",
+        "type": "custom"
+      },
+      {
+        "id": "draft_argument-end",
+        "source": "draft_argument",
+        "sourceHandle": "source",
+        "target": "end",
+        "targetHandle": "target",
+        "type": "custom"
+      }
+    ],
+    "viewport": {
+      "x": 0,
+      "y": 0,
+      "zoom": 1
+    }
+  }
+}

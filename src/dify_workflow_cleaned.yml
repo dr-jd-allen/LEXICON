@@ -1,0 +1,935 @@
+app:
+  description: Multi-step agentic AI workflow for generating Daubert/Frye motions,
+    other motions *in limine* (MIL), and oppositions to MIL
+  icon: ⚖️
+  icon_background: '#D3F8DF'
+  mode: workflow
+  name: 'LEXICONv1.6: Legal Expertise with Contextual Intelligence'
+  use_icon_as_answer_icon: false
+dependencies:
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/anthropic:0.1.0@9606fae27806523e35f5dfc175fdee82cddc389e59e5a5d29178a3800ea95dc0
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/regex:0.0.3@257eaab07b70ab1f77a881b870eefee93fc8fd0dd13350077410264f31695039
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: pragnyan_ramtha/deep_research:0.0.3@d2fcbb9dc554b5714f2ece961ea883b263ba763c09fe184306b3977b41bb64e2
+- current_identifier: null
+  type: marketplace
+  value:
+    marketplace_plugin_unique_identifier: langgenius/openai:0.0.30@1f5ecdef108418a467e54da2dcf5de2cf22b47632abc8633194ac9fb96317ede
+kind: app
+version: 0.3.0
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .pdf
+      - .docx
+      - .txt
+      - .wpd
+      allowed_file_types:
+      - custom
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: true
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+      number_limits: 10
+    opening_statement: 'I will analyze expert witness testimony and generate legal motions based on your requirements.'
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: 
+    - "Analyze Dr. Smith's neuropsychological testing methodology"
+    - "Find contradictions in the biomechanical expert's deposition"
+    - "Draft a Daubert motion for DTI imaging testimony"
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: start
+        targetType: llm
+      id: 1752458537828-source-1752459411115-target
+      selected: false
+      source: '1752458537828'
+      sourceHandle: source
+      target: '1752459411115'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1752459411115--1752462935668-target
+      selected: false
+      source: '1752459411115'
+      sourceHandle: source
+      target: '1752462935668'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1752462935668-source-1752467761545-target
+      selected: false
+      source: '1752462935668'
+      sourceHandle: source
+      target: '1752467761545'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: llm
+      id: 1752467761545-source-1752468625754-target
+      selected: false
+      source: '1752467761545'
+      sourceHandle: source
+      target: '1752468625754'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: tool
+      id: 1752462935668-source-1752469776666-target
+      selected: false
+      source: '1752462935668'
+      sourceHandle: source
+      target: '1752469776666'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: agent
+      id: 1752468625754--1752469825030-target
+      selected: false
+      source: '1752468625754'
+      sourceHandle: source
+      target: '1752469825030'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: llm
+        targetType: knowledge-retrieval
+      id: 1752459411115-source-1752489064736-target
+      source: '1752459411115'
+      sourceHandle: source
+      target: '1752489064736'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        isInLoop: false
+        sourceType: knowledge-retrieval
+        targetType: tool
+      id: 1752489064736-source-1752469323137-target
+      source: '1752489064736'
+      sourceHandle: source
+      target: '1752469323137'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: 'LEXICON MIL workflow entry node to indicate desired brief output and access/upload relevant case files to evaluate. '
+        selected: false
+        title: Start
+        type: start
+        variables:
+        - label: brief_type
+          max_length: 48
+          options:
+          - Daubert/Frye motion
+          - Other motions *in limine*
+          - Opposition to MIL
+          required: true
+          type: select
+          variable: brief_type
+        - label: expert_name
+          max_length: 100
+          options: []
+          required: true
+          type: text-input
+          variable: expert_name
+        - allowed_file_extensions:
+          - pdf
+          - docx
+          - doc
+          - txt
+          - wpd
+          allowed_file_types:
+          - custom
+          allowed_file_upload_methods:
+          - local_file
+          - remote_url
+          label: case_file_list
+          max_length: 10
+          options: []
+          required: true
+          type: file-list
+          variable: case_file_list
+        - label: database_user
+          max_length: 100
+          options: []
+          required: false
+          type: text-input
+          variable: database_user
+        - label: database_password
+          max_length: 100
+          options: []
+          required: false
+          type: text-input
+          variable: database_password
+        - label: jurisdiction
+          max_length: 48
+          options:
+          - Indiana
+          - Illinois
+          - Federal
+          required: true
+          type: select
+          variable: jurisdiction
+        - label: case_ID
+          max_length: 100
+          options: []
+          required: true
+          type: text-input
+          variable: case_ID
+      height: 322
+      id: '1752458537828'
+      position:
+        x: 30
+        y: 348
+      positionAbsolute:
+        x: 30
+        y: 348
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1752458537828'
+          - case_file_list
+        desc: 'Legal researcher focused on expert witness testimony and strategic consultation with attorneys.'
+        model: o3-pro
+          completion_params:
+            frequency_penalty: 0.5
+            max_tokens: 100000
+            presence_penalty: 0.5
+            reasoning_effort: high
+            response_format: text
+            temperature: 0.2
+            top_p: 0.75
+          mode: chat
+          name: o3-pro-2025-06-10
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 580ae3a5-ead7-415f-8e58-83721309bd3a
+          role: system
+          text: "You are a seasoned AI Legal Analyst specializing in the critical\
+            \ evaluation of expert witness testimony for litigation. Your purpose\
+            \ is to conduct a deep, multi-document analysis of an expert witness and\
+            \ their stated opinions regarding a pending tort law case in state or\
+            \ federal court. You must be meticulous, objective, and structure your\
+            \ output for immediate use by an experienced and successful trial attorney\
+            \ (who will reward your accuracy and comprehensiveness).\n\nYour analysis\
+            \ of {{#1752458537828.expert_name#}} will be based on the provided {{#context#}}\
+            \ case files (which may include expert reports, deposition transcripts,\
+            \ CVs, scientific articles, etc.). You should also retrieve and include\
+            \ any relevant information in the LEXIS-NEXIS database using the provided\
+            \ credentials: \n\nUsername: {{#1752458537828.database_user#}}\n\
+            Password: {{#1752458537828.database_password#}}\n\n**Primary Objective:**\
+            \ Deconstruct the testimony of **Expert Name: {{#1752458537828.expert_name#}}**\
+            \ in **Jurisdiction: {{#1752458537828.jurisdiction#}}**\n\
+            \n**Output Formatting:**\n- Use Markdown for all document formatting\n\
+            - Adhere to the latest version of MLA style for citations, page numbering,\
+            \ etc.\n- Use `#` for main title, `##` for major sections, `###` for sub-sections\n\
+            - Use bolding (`**text**`) for key terms and italics (*text*) for direct\
+            \ quotes\n- Use bullet points (`-`) for lists of findings\n- Include page/line\
+            \ citations in format: `[Report p.12]` or `[Depo 45:12-18]`\n- Begin with\
+            \ `## 🚨 CRITICAL FLAGS SUMMARY 🚨` listing top 3-5 vulnerabilities\n\
+            \n---\n\n{% if #1752458537828.brief_type# == \"Daubert/Frye motion\" %}\n# Daubert/Frye\
+            \ Motion Analysis: Expert {{#1752458537828.expert_name#}}\n\
+            \n## 🚨 CRITICAL FLAGS SUMMARY 🚨\n- [Synthesize the most\
+            \ damaging vulnerabilities found across all categories below]\n\n## I.\
+            \ Qualifications & Potential Bias\n- **Prior Testimony History:** List\
+            \ all known prior cases involving {{#1752458537828.expert_name#}}, noting\
+            \ the party represented, {{#1752458537828.jurisdiction#}}, and the full\
+            \ name of the counsel or firm that retained the {{#1752458537828.expert_name#}}\n\
+            - **Prior Challenges:** Any previous Daubert challenges or exclusions\
+            \ with court holdings\n- **Financial Bias:** Fee structure, % income from\
+            \ litigation, repeat business\n- **CV Inconsistencies:** Discrepancies\
+            \ between CV and deposition testimony\n\n## II. Opinion & Methodology\
+            \ Deconstruction (Daubert Factors)\n\n### A. Summary of Stated Opinions\n\
+            - Extract each distinct opinion with direct quotes from evidence produced\
+            \ by {{#1752458537828.expert_name#}}\n- Identify \"fit\" language connecting\
+            \ their opinion to case facts, as indicated by {{#context#}} and other\
+            \ available records, which might require tool or function calls to access\
+            \ external knowledge (e.g., in LEXIS-NEXIS)\n\n### B. Factor 1: Testability\
+            \ / Falsifiability\n- **Stated Methodology:** Quote step-by-step description,\
+            \ preferably from testimony provided by {{#1752458537828.expert_name#}} in\
+            \ the present case or similar litigation\n- **Hypothesis:** If applicable,\
+            \ is a core hypothesis explicitly stated and falsifiable?\n- **Assumptions:**\
+            \ List all key assumptions (e.g., of assessment materials, cost analyses)\
+            \ with relevant citations\n\n### C. Factor 2: Peer Review & Publication\n\
+            - **Empirical Literature:** Key peer-reviewed articles cited by {{#1752458537828.expert_name#}} that\
+            \ generally support their findings\n- **Contradictory Literature:** Studies\
+            \ that challenge methodology used or conclusions provided by {{#1752458537828.expert_name#}}\n\
+            - **Self-Citation:** Frequency and concern level, according to field-specific\
+            \ reasonable standards \n- **Litigation Science:** Are stated methods\
+            \ by {{#1752458537828.expert_name#}} primarily used in court, clinical\
+            \ practice, or research settings?\n\n### D. Factor 3: Known or Potential\
+            \ Error Rate\n- **Stated Error Rate:** Quote any numerical/qualitative\
+            \ error rates of any tests performed during assessments or evaluation\
+            \ reports by {{#1752458537828.expert_name#}}\n- **Missing Error Rate:**\
+            \ If absent, state: **\"Expert failed to provide error rate\"**\n- **Accuracy\
+            \ Variables:** Explanatory factors {{#1752458537828.expert_name#}} admits\
+            \ affect accuracy of findings\n\n### E. Factor 4: Standards & Controls\n\
+            - **Governing Standards:** Industry/professional standards (ASTM, AMA,\
+            \ APA, ISO, etc.)\n- **Deviations:** Compare methodology used to field-specific\
+            \ standards, note deviations\n\n### F. Factor 5: General Acceptance\n\
+            - **Claims of Acceptance:** Quote any \"generally accepted\" claims\n\
+            - **Limited Acceptance Evidence:** Highlight any novel, controversial,\
+            \ or minority view indicators\n\n### G. Temporal Analysis\n- **Testing\
+            \ Timeline:** When performed relative to accident or date of injury\n\
+            - **Opinion Evolution:** Changes from report to deposition\n- **Critical\
+            \ Gaps:** Missing time periods in records\n\n## III. Cross-Document Contradictions\n\
+            - **Report vs. Deposition:** Side-by-side contradictions in testimony\n\
+            - **Fact Conflicts:** Identify any assumptions that contradict case facts\n\
+            \n## IV. {{#1752458537828.jurisdiction#}} Specific\
+            \ Considerations\n- **Legal Standard:** [Daubert/Frye requirements in\
+            \ selected state or federal law]\n- **Key State Precedents:** Relevant\
+            \ admissibility cases \n- **Local Rules:** Special expert disclosure requirements\n\
+            \n{% elif #1752458537828.brief_type# == \"Other motions *in limine*\" %}\n# Motion In Limine Analysis: Expert {{#1752458537828.expert_name#}}\n\
+            \n## 🚨 CRITICAL FLAGS SUMMARY 🚨\n- [Synthesize most\
+            \ significant relevance/prejudice concerns]\n\n## I. Relevance Analysis\
+            \ (FRE 401 & 402)\n- **Case Fact Connection:** How each opinion relates\
+            \ to disputed facts\n- **Legal Conclusion Risk:** Opinions that invade\
+            \ jury's province\n\n## II. Unfair Prejudice & Confusion (FRE 403)\n-\
+            \ **Inflammatory Language:** Emotionally charged statements\n- **Jury\
+            \ Confusion Risk:** Topics within common understanding\n- **403 Balancing:**\
+            \ Weigh probative value vs. prejudicial effect\n\n## III. Qualifications\
+            \ & Scope\n- **Opinion-Specific Credentials:** Match each opinion to expertise\n\
+            - **Proposed Testimony Limits:** Bulleted scope restrictions\n\n## IV.\
+            \ {{#1752458537828.jurisdiction#}} Specific Standards\n\
+            - **State Evidence Rules:** Deviations from federal rules\n- **Precedent\
+            \ on Scope:** State cases limiting expert testimony\n\n{% elif #1752458537828.brief_type# == \"Opposition to MIL\" %}\n# Opposition to Motions *in Limine*: Defending\
+            \ {{#1752458537828.expert_name#}}\n\n## 🚨\
+            \ KEY STRENGTHS SUMMARY 🚨\n- [Highlight strongest defensible\
+            \ aspects]\n\n## I. Methodology Validation\n- **Scientific Support:**\
+            \ Peer-reviewed validation\n- **Acceptable Error Rates:** Context showing\
+            \ reliability\n- **Standards Compliance:** Adherence to professional standards\n\
+            \n## II. Qualifications & Fit\n- **Opinion-Specific Expertise:** CV support\
+            \ for each opinion\n- **Jury Assistance:** How testimony clarifies complex\
+            \ evidence\n\n## III. Preemptive Rebuttals\n- **\"Novel Method\" Defense:**\
+            \ Evidence of established use\n- **\"Biased Expert\" Defense:** Balanced\
+            \ testimony history\n- **\"Lack of Fit\" Defense:** Clear connection to\
+            \ case facts\n\n## IV. {{#1752458537828.jurisdiction#}}\
+            \ Supportive Precedent\n- **Favorable Admissibility Rulings:** Case law\
+            \ precedent with similar experts/methods/evidence admitted\n- **Liberal\
+            \ Admission Standard:** State preference for jury consideration\n\n{% endif %}\n\n##\
+            \ V. Trial Strategy Implications\n- **Key Cross-Examination Themes:**\
+            \ Top 3 attack vectors\n- **Demonstrative Evidence Vulnerabilities:**\
+            \ Visual aids that expose flaws\n- **LEXIS-NEXIS Research Priorities:**\
+            \ Specific searches needed for legal precedent\n\n---\n**Analysis Complete**"
+        - id: 4e17c7e1-77ea-4ecd-a595-e351b75ebd38
+          role: user
+          text: "Review the following cases: {{#1752458537828.case_file_list#}} and perform\
+            \ an analysis of testimony provided by {{#1752458537828.expert_name#}}"
+        selected: false
+        structured_output_enabled: true
+        title: RESEARCH_AGENT
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 150
+      id: '1752459411115'
+      position:
+        x: 334
+        y: 348
+      positionAbsolute:
+        x: 334
+        y: 348
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1752459411115'
+          - text
+        desc: Support LLM to the Research Agent.
+        model:
+          completion_params:
+            frequency_penalty: 0.5
+            max_tokens: 4000
+            presence_penalty: 0.5
+            reasoning_effort: high
+            response_format: text
+            temperature: 0.2
+            top_p: 0.75
+          mode: chat
+          name: o4-mini
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 56700955-d83e-4d50-8a8a-1ca27817e266
+          role: system
+          text: "You are a forensic legal analyst specializing in finding contradictions\
+            \ and inconsistencies in expert witness testimony.\n\n**Input from First-Pass\
+            \ Analysis:**\n{{#1752459411115.text#}}\n\n**Your\
+            \ Task:** Search through the case file knowledge base for contradictions,\
+            \ inconsistencies, and omissions that undermine the expert's opinions.\n\
+            \n**Focus Areas:**\n\n1. **Internal Contradictions**\n   - Expert report vs. deposition testimony\n\
+            \   - Earlier statements vs. later statements\n   - CV claims vs. actual\
+            \ testimony\n\n2. **Factual Contradictions**\n   - Expert assumptions\
+            \ vs. case facts\n   - Timeline conflicts\n   - Medical history discrepancies\n\
+            \n3. **Methodological Inconsistencies**\n   - Stated methodology vs. actual\
+            \ procedures\n   - Cherry-picked data or tests\n   - Ignored negative\
+            \ findings\n\n4. **Omissions**\n   - Missing differential diagnoses\n\
+            \   - Unconsidered alternative causes\n   - Ignored confounding factors\n\
+            \n**Output Format:**\n## 🚨 CONTRADICTION SUMMARY\n\n### Critical\
+            \ Contradictions\n[List top 3-5 most damaging contradictions]\n\n### Detailed\
+            \ Findings\n\n#### 1. [Contradiction Type]\n- **What Expert Stated:**\
+            \ [Quote with citation]\n- **Contradicting Evidence:** [Quote with citation]\n\
+            - **Impact:** [How this undermines the opinion]\n\n[Continue for each\
+            \ contradiction found]\n\n### Missing Considerations\n- [List key factors\
+            \ the expert failed to address]\n\n**Search the knowledge base thoroughly\
+            \ for any evidence that contradicts or undermines the expert's positions\
+            \ identified in the previous analysis.**"
+        - id: c4263ec7-957c-4531-8022-2c6ae5153886
+          role: user
+          text: "Analyze the research agent's findings for contradictions in {{#1752458537828.expert_name#}}'s testimony. Context: {{#context#}}"
+        selected: false
+        title: CONTRADICTION_CLIENT
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '1752462935668'
+      position:
+        x: 636.5821032267888
+        y: 353.26845159816713
+      positionAbsolute:
+        x: 636.5821032267888
+        y: 353.26845159816713
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1752459411115'
+          - text
+          - '1752462935668'
+          - text
+        desc: Support LLM to the Research Agent.
+        model: gpt-4.1-nano
+          completion_params:
+            frequency_penalty: 0.5
+            max_tokens: 6000
+            presence_penalty: 0.5
+            response_format: text
+            temperature: 0.25
+            top_p: 0.75
+          mode: chat
+          name: gpt-4.1-nano
+          provider: langgenius/openai/openai
+        prompt_template:
+        - id: 6aafab89-be4f-4bdf-b398-aa27d4a5e5a5
+          role: system
+          text: "You are a legal research specialist focusing on finding\
+            \ precedent that challenges expert witness testimony.\n\n**Expert Analysis\
+            \ Summary:**\n{{#1752459411115.text#}}\n\n**Contradictions\
+            \ Found:**\n{{#1752462935668.text#}}\n\n\
+            **Your Task:** Search LEXIS-NEXIS (with username: {{#1752458537828.database_user#}} and\
+            \ password: {{#1752458537828.database_password#}}) and other legal databases (e.g.,\
+            \ Google Scholar) for precedent cases that:\n\n1. **Challenge Similar\
+            \ Methodologies**\n   - Cases excluding experts using similar techniques\n\
+            \   - Rulings on specific Daubert/Frye factors\n   - Appellate decisions\
+            \ on methodology reliability\n\n2. **Address Expert Qualifications**\n\
+            \   - Cases limiting expert testimony scope\n   - Rulings on \"professional\
+            \ witness\" bias\n   - Decisions on expertise-opinion mismatch\n\n3. **Support\
+            \ Exclusion Arguments**\n   - Precedent on lack of fit to case facts\n\
+            \   - Rulings on speculative opinions\n   - Cases excluding cumulative\
+            \ expert testimony\n\n**Search Parameters:**\n- **Jurisdictions:** {{#1752458537828.jurisdiction#}}\
+            \ (prioritize), Federal courts, persuasive authority\n- **Time Frame:**\
+            \ Last 10 years (prioritize recent decisions)\n- **Keywords:** Based on\
+            \ specific methodologies and issues identified\n\
+            \n**Output Format:**\n\n## LEGAL PRECEDENT SUPPORTING EXCLUSION\n\n###\
+            \ Directly On-Point Cases\n\n#### [Case Name, Citation, Year]\n- **Court:**\
+            \ [Jurisdiction and level]\n- **Holding:** [Key ruling on expert admissibility]\n\
+            - **Relevant Quote:** \"[Direct quote from opinion]\"\n- **Application:**\
+            \ [How this applies to current expert]\n\n### Methodology-Specific Precedent\n\
+            \n#### [Methodology Type] Challenges\n[List cases challenging this specific\
+            \ methodology]\n\n### Persuasive Authority\n[Cases from jurisdictions\
+            \ other than {{#1752458537828.jurisdiction#}} that may be persuasive]\n\n### Strategic Citations\n\
+            - **Strongest Precedent:** [Top 3 cases to lead with]\n- **Distinguish\
+            \ Opposition Cases:** [Anticipated cases opposition may cite]\n\n**Focus\
+            \ on finding the most recent and directly applicable precedent from the\
+            \ specified jurisdiction.**"
+        selected: false
+        title: PRECEDENT_CLIENT
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '1752467761545'
+      position:
+        x: 942
+        y: 348
+      positionAbsolute:
+        x: 942
+        y: 348
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        context:
+          enabled: true
+          variable_selector:
+          - '1752459411115'
+          - text
+          - '1752462935668'
+          - text
+          - '1752467761545'
+          - text
+        desc: Support LLM to the Research Agent.
+        model: claude-opus-4
+          completion_params:
+            temperature: 0.3
+            thinking: true
+            top_p: 1
+          mode: chat
+          name: claude-opus-4-20250514
+          provider: langgenius/anthropic/anthropic
+        prompt_template:
+        - id: b12ca7a7-8470-45fc-810d-e6cf889202d0
+          role: system
+          text: "You are a senior litigation attorney drafting the argument section of a {{#1752458537828.brief_type#}}.\n\n\
+            **Comprehensive Analysis:**\n\
+            - Expert Analysis: {{#1752459411115.text#}}\n\
+            - Contradictions: {{#1752462935668.text#}}\n\
+            - Legal Precedent: {{#1752467761545.text#}}\n\n\
+            **Draft Requirements:**\n\
+            1. Use formal legal writing style\n\
+            2. Apply MLA citation format for all references\n\
+            3. Structure arguments from strongest to weakest\n\
+            4. Anticipate and address counterarguments\n\
+            5. Use persuasive language appropriate for judicial audience\n\n\
+            **Argument Structure:**\n\n\
+            {% if #1752458537828.brief_type# == \"Daubert/Frye motion\" %}\n\n\
+            ## ARGUMENT\n\n\
+            ### I. INTRODUCTION\n\
+            [2-3 paragraphs setting up why exclusion is warranted]\n\n\
+            ### II. {{#1752458537828.expert_name#}}'S OPINIONS FAIL THE DAUBERT/FRYE STANDARD\n\n\
+            #### A. The Methodology Lacks Scientific Reliability\n\
+            [Address each Daubert factor with specific examples]\n\n\
+            #### B. The Expert's Qualifications Do Not Match the Proffered Opinions\n\
+            [Detail mismatches between expertise and testimony]\n\n\
+            #### C. The Opinions Do Not \"Fit\" the Facts of This Case\n\
+            [Explain disconnect between opinions and case facts]\n\n\
+            ### III. THE EXPERT'S TESTIMONY CONTAINS FATAL CONTRADICTIONS\n\
+            [Detail key contradictions with evidence citations]\n\n\
+            ### IV. ESTABLISHED PRECEDENT MANDATES EXCLUSION\n\n\
+            #### A. This Court Has Previously Excluded Similar Testimony\n\
+            [Cite local precedent]\n\n\
+            #### B. Courts Nationwide Reject Such Methodologies\n\
+            [Cite persuasive authority]\n\n\
+            ### V. THE PROBATIVE VALUE IS SUBSTANTIALLY OUTWEIGHED BY THE DANGER OF UNFAIR PREJUDICE\n\
+            [403 balancing analysis if applicable]\n\n\
+            ### VI. CONCLUSION\n\
+            [Strong closing arguing for complete exclusion]\n\n\
+            {% elif #1752458537828.brief_type# == \"Other motions *in limine*\" %}\n\n\
+            ## ARGUMENT\n\n\
+            ### I. INTRODUCTION\n\
+            [Set up specific prejudice/relevance concerns]\n\n\
+            ### II. THE EXPERT'S TESTIMONY EXCEEDS PERMISSIBLE BOUNDS\n\n\
+            #### A. Irrelevant Opinions Should Be Excluded\n\
+            [FRE 401/402 analysis]\n\n\
+            #### B. The Testimony Will Confuse and Mislead the Jury\n\
+            [FRE 403 analysis]\n\n\
+            ### III. LIMITING INSTRUCTIONS CANNOT CURE THE PREJUDICE\n\
+            [Explain why partial exclusion insufficient]\n\n\
+            ### IV. CONCLUSION\n\
+            [Request specific relief]\n\n\
+            {% elif #1752458537828.brief_type# == \"Opposition to MIL\" %}\n\n\
+            ## ARGUMENT\n\n\
+            ### I. INTRODUCTION\n\
+            [Frame expert's importance to case]\n\n\
+            ### II. THE EXPERT'S METHODOLOGY SATISFIES ALL RELIABILITY REQUIREMENTS\n\n\
+            #### A. The Techniques Are Scientifically Valid\n\
+            [Address each Daubert factor favorably]\n\n\
+            #### B. The Expert Is Highly Qualified\n\
+            [Detail credentials and experience]\n\n\
+            ### III. THE TESTIMONY WILL ASSIST THE TRIER OF FACT\n\
+            [Explain complexity requiring expert guidance]\n\n\
+            ### IV. THE MOTION'S CRITICISMS GO TO WEIGHT, NOT ADMISSIBILITY\n\
+            [Argue cross-examination is proper remedy]\n\n\
+            ### V. PRECEDENT SUPPORTS ADMISSION\n\
+            [Cite favorable cases]\n\n\
+            ### VI. CONCLUSION\n\
+            [Argue for denial of motion]\n\n\
+            {% endif %}\n\n\
+            **Remember:**\n\
+            - Every assertion must have evidentiary support\n\
+            - Use persuasive transitions between arguments\n\
+            - Maintain professional tone throughout\n\
+            - End with specific relief requested"
+        selected: false
+        title: DRAFT_CLIENT
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 118
+      id: '1752468625754'
+      position:
+        x: 1246
+        y: 348
+      positionAbsolute:
+        x: 1246
+        y: 348
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: Exit node for LEXICON MIL brief production workflow.
+        outputs:
+        - value_selector:
+          - '1752468625754'
+          - text
+          value_type: string
+          variable: motion_text
+        - value_selector:
+          - '1752459411115'
+          - text
+          value_type: string
+          variable: analysis_summary
+        - value_selector:
+          - '1752462935668'
+          - text
+          value_type: string
+          variable: contradictions_found
+        - value_selector:
+          - '1752467761545'
+          - text
+          value_type: string
+          variable: precedent_research
+        selected: false
+        title: End
+        type: end
+      height: 212
+      id: '1752469036043'
+      position:
+        x: 30
+        y: 684
+      positionAbsolute:
+        x: 30
+        y: 684
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: used for discovering information on a specific topic, generating
+              follow-up questions, and synthesizing findings into a comprehensive
+              report.
+            ja_JP: used for discovering information on a specific topic, generating
+              follow-up questions, and synthesizing findings into a comprehensive
+              report.
+            pt_BR: usado para descobrir informações sobre um tópico específico, gerar
+              perguntas de acompanhamento e sintetizar descobertas em um relatório
+              abrangente.
+            zh_Hans: 用于发现特定主题的信息，生成后续问题，并将发现综合成一份全面的报告。
+          label:
+            en_US: Query string
+            ja_JP: Query string
+            pt_BR: Query string
+            zh_Hans: 查询语句
+          llm_description: use the query string to conduct comprehensive deep dives
+            into user-provided topics, synthesize information, identify key findings,
+            and highlight interesting or unexpected details to stimulate curiosity.
+            When given a research topic, strategically use the results provided to
+            gather relevant information. Iterate on your searches by generating follow-up
+            questions if initial results are insufficient. Once enough information
+            is gathered, synthesize it into a well-structured, informative, and engaging
+            report, highlighting key facts and fostering further curiosity.
+          max: null
+          min: null
+          name: query
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          query: ''
+        provider_id: pragnyan_ramtha/deep_research/deep_research
+        provider_name: pragnyan_ramtha/deep_research/deep_research
+        provider_type: builtin
+        selected: false
+        title: deep_research
+        tool_configurations: {}
+        tool_description: Deep Research is a tool that can delve deep into any topic,
+          synthesize information, and spark curiosity by leveraging the Tavily API
+          for comprehensive web searches and content retrieval.
+        tool_label: deep_research
+        tool_name: deep_research
+        tool_parameters:
+          query:
+            type: mixed
+            value: '{{#1752458537828.expert_name#}}'
+        type: tool
+        version: '2'
+      height: 86
+      id: '1752469323137'
+      position:
+        x: 938
+        y: 490
+      positionAbsolute:
+        x: 938
+        y: 490
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        desc: ''
+        is_team_authorization: true
+        output_schema: null
+        paramSchemas:
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Content to be extracted
+            ja_JP: Content to be extracted
+            pt_BR: Content to be extracted
+            zh_Hans: 内容
+          label:
+            en_US: Content to be extracted
+            ja_JP: Content to be extracted
+            pt_BR: Content to be extracted
+            zh_Hans: 内容
+          llm_description: ''
+          max: null
+          min: null
+          name: content
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        - auto_generate: null
+          default: null
+          form: llm
+          human_description:
+            en_US: Regular expression
+            ja_JP: Regular expression
+            pt_BR: Regular expression
+            zh_Hans: 正则表达式
+          label:
+            en_US: Regular expression
+            ja_JP: Regular expression
+            pt_BR: Regular expression
+            zh_Hans: 正则表达式
+          llm_description: ''
+          max: null
+          min: null
+          name: expression
+          options: []
+          placeholder: null
+          precision: null
+          required: true
+          scope: null
+          template: null
+          type: string
+        params:
+          content: ''
+          expression: ''
+        provider_id: langgenius/regex/regex
+        provider_name: langgenius/regex/regex
+        provider_type: builtin
+        selected: false
+        title: Regex Extract
+        tool_configurations: {}
+        tool_description: A tool for extracting matching content using regular expressions.
+        tool_label: Regex Extract
+        tool_name: regex_extract
+        tool_parameters:
+          content:
+            type: mixed
+            value: '/'
+          expression:
+            type: mixed
+            value: null
+        type: tool
+        version: '2'
+      height: 86
+      id: '1752469776666'
+      position:
+        x: 942
+        y: 506
+      positionAbsolute:
+        x: 942
+        y: 506
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        agent_parameters:
+          mcp_resources_as_tools:
+            type: constant
+            value: true
+          model:
+            type: constant
+            value:
+              completion_params:
+                temperature: 1
+                thinking: true
+              mode: chat
+              model: claude-opus-4-20250514
+              model_type: llm
+              provider: langgenius/anthropic/anthropic
+              type: model-selector
+        agent_strategy_label: ReAct (Support MCP Tools)
+        agent_strategy_name: mcp_sse_ReAct
+        agent_strategy_provider_name: junjiem/mcp_see_agent/mcp_see_agent
+        desc: ''
+        meta:
+          minimum_dify_version: null
+          version: 0.0.1
+        output_schema: null
+        plugin_unique_identifier: junjiem/mcp_see_agent:0.2.2@2b54607cf4d6a03b39cdae1425af2d8bafd4dd87f3eef6dc3eaaa945c71c2231
+        selected: true
+        title: ORCHESTRATOR
+        type: agent
+        version: '2'
+      height: 146
+      id: '1752469825030'
+      position:
+        x: 368.8919879151176
+        y: 98.45016791483876
+      positionAbsolute:
+        x: 368.8919879151176
+        y: 98.45016791483876
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    - data:
+        dataset_ids: []
+        desc: ''
+        metadata_filtering_mode: automatic
+        metadata_model_config:
+          completion_params:
+            grounding: 1
+            max_output_tokens: 65535
+            temperature: 0.7
+            top_p: 1
+          mode: chat
+          name: gemini-2.5-pro
+          provider: langgenius/vertex_ai/vertex_ai
+        multiple_retrieval_config:
+          reranking_enable: false
+          top_k: 4
+        query_variable_selector:
+        - '1752458537828'
+        - expert_name
+        retrieval_mode: multiple
+        selected: false
+        title: Knowledge Retrieval
+        type: knowledge-retrieval
+      height: 54
+      id: '1752489064736'
+      position:
+        x: 629.347380864398
+        y: 578.8859965748198
+      positionAbsolute:
+        x: 629.347380864398
+        y: 578.8859965748198
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 244
+    viewport:
+      x: 59.90228681128633
+      y: 73.09298609359234
+      zoom: 0.7052699596284975

@@ -1,0 +1,441 @@
+app:
+  name: "LEXICON: Legal Expertise with Contextual Intelligence"
+  mode: workflow
+  icon: 🏛️
+  icon_background: "#E0F2FE"
+  description: "Multi-step agentic AI workflow for generating Daubert/Frye motions, other motions in limine (MIL), and oppositions to MIL"
+  
+workflow:
+  features:
+    opening_statement: "I'll help you analyze expert witness testimony and generate legal motions."
+    suggested_questions:
+      - "Generate a Daubert motion for Dr. Smith's testimony"
+      - "Create an opposition to motion in limine"
+      - "Analyze expert contradictions in deposition"
+    
+  nodes:
+    - id: "1726383037577"
+      position:
+        x: 80
+        y: 282
+      type: start
+      data:
+        title: "Start"
+        type: start
+        variables:
+          - variable: brief_type
+            type: string
+            required: true
+            name: "Type of Motion"
+            description: "Type of motion to generate"
+            default: ""
+            hint: "Select motion type"
+            options:
+              - "Daubert/Frye motion"
+              - "Other motions in limine"
+              - "Opposition to MIL"
+            max_length: 100
+            show_in_list: true
+            field_type: select
+            
+          - variable: expert_name
+            type: string
+            required: true
+            name: "Expert Name"
+            description: "Name of the expert witness"
+            default: ""
+            max_length: 100
+            show_in_list: true
+            field_type: text-input
+            
+          - variable: case_file_list
+            type: file
+            required: true
+            name: "Case Files"
+            description: "Upload case files (PDFs, DOCX, TXT)"
+            allowed_file_extensions:
+              - pdf
+              - docx
+              - txt
+            allowed_file_upload_methods:
+              - local_file
+              - remote_url
+            number_limits: 10
+            transfer_methods:
+              - local_file
+              - remote_url
+              
+          - variable: user_ID
+            type: string
+            required: true
+            name: "LEXIS-NEXIS Username"
+            description: "Username for LEXIS-NEXIS access"
+            default: "Brown, Robert4"
+            max_length: 50
+            show_in_list: false
+            field_type: text-input
+            
+          - variable: database_password
+            type: string
+            required: true
+            name: "LEXIS-NEXIS Password"
+            description: "Password for secure access"
+            default: "baileYI"
+            max_length: 50
+            show_in_list: false
+            field_type: password
+            
+          - variable: jurisdiction
+            type: array[string]
+            required: true
+            name: "Jurisdiction"
+            description: "Select applicable jurisdictions"
+            default: []
+            options:
+              - "Indiana"
+              - "Illinois"
+              - "Federal"
+            show_in_list: true
+            field_type: select
+            
+    - id: "1726383037578"
+      position:
+        x: 384
+        y: 282
+      type: llm
+      data:
+        title: "Research Agent"
+        type: llm
+        variables: []
+        model:
+          provider: openai
+          name: "o3-deep-research-2025-06-26"
+          mode: chat
+          completion_params:
+            temperature: 0.7
+            top_p: 0.95
+            max_tokens: 10000
+            presence_penalty: 0
+            frequency_penalty: 0
+            stop: []
+        context:
+          enabled: true
+          variable_selector:
+            - "1726383037577"
+            - "case_file_list"
+        prompt: |
+          You are an AI Legal Analyst specializing in the critical evaluation of expert witness testimony for litigation. Your purpose is to conduct a deep, multi-document analysis of an expert witness and their stated opinions. You must be meticulous, objective, and structure your output for immediate use by a trial attorney.
+
+          Your analysis will be based on the provided {{#context#}} case files (which may include expert reports, deposition transcripts, CVs, scientific articles, etc.).
+
+          **Primary Objective:** Deconstruct the testimony of **Expert Name: {{#1726383037577.expert_name#}}** in **Jurisdiction: {{#1726383037577.jurisdiction#}}**
+
+          **Output Formatting:**
+          - Use Markdown for all document formatting
+          - Adhere to the latest version of MLA style for citations
+          - Use `#` for main title, `##` for major sections, `###` for sub-sections
+          - Use bolding (`**text**`) for key terms and italics (*text*) for direct quotes
+          - Include page/line citations in format: `[Report p.12]` or `[Depo 45:12-18]`
+          - Begin with `## 🚨 CRITICAL FLAGS SUMMARY 🚨` listing top 3-5 vulnerabilities
+
+          {% if #1726383037577.brief_type# == "Daubert/Frye motion" %}
+          # Daubert/Frye Motion Analysis: Expert {{#1726383037577.expert_name#}}
+
+          ## 🚨 CRITICAL FLAGS SUMMARY 🚨
+          [Synthesize the most damaging vulnerabilities]
+
+          ## I. Expert Qualifications & Potential Bias
+          - **Prior Testimony History:** List all known prior cases
+          - **Prior Challenges:** Any Daubert challenges or exclusions
+          - **Financial Bias:** Fee structure, % income from litigation
+          - **CV Inconsistencies:** Discrepancies between CV and deposition
+
+          ## II. Opinion & Methodology Deconstruction (Daubert Factors)
+          [Continue with full Daubert analysis...]
+          
+          {% elif #1726383037577.brief_type# == "Other motions in limine" %}
+          # Motion In Limine Analysis: Expert {{#1726383037577.expert_name#}}
+          [Motion in limine specific analysis...]
+          
+          {% elif #1726383037577.brief_type# == "Opposition to MIL" %}
+          # Opposition to Motion in Limine: Defending {{#1726383037577.expert_name#}}
+          [Opposition specific analysis...]
+          {% endif %}
+
+          ## V. Trial Strategy Implications
+          - **Key Cross-Examination Themes:** Top 3 attack vectors
+          - **LEXIS-NEXIS Research Priorities:** Specific searches needed
+          
+        memory:
+          role_prefix:
+            user: "Attorney"
+            assistant: "Legal Analyst"
+          window:
+            enabled: false
+        tools:
+          - enabled: true
+            type: web_search
+            tool_label: "Web Search"
+          - enabled: true
+            type: knowledge_retrieval
+            tool_label: "Case File Search"
+        
+    - id: "1726383037579"
+      position:
+        x: 688
+        y: 282
+      type: llm
+      data:
+        title: "Find Contradictions"
+        type: llm
+        variables: []
+        model:
+          provider: openai
+          name: gpt-4-turbo-preview
+          mode: chat
+          completion_params:
+            temperature: 0.2
+            top_p: 0.9
+            max_tokens: 4000
+        context:
+          enabled: true
+          variable_selector:
+            - "1726383037578"
+            - "text"
+        prompt: |
+          You are a forensic legal analyst specializing in finding contradictions and inconsistencies in expert testimony.
+
+          **Input from Previous Analysis:**
+          {{#1726383037578.text#}}
+
+          **Your Task:** Search through the case file knowledge base for contradictions, inconsistencies, and omissions that undermine the expert's opinions.
+
+          **Focus Areas:**
+
+          1. **Internal Contradictions**
+             - Expert report vs. deposition testimony
+             - Earlier statements vs. later statements
+             - CV claims vs. actual testimony
+
+          2. **Factual Contradictions**
+             - Expert assumptions vs. case facts
+             - Timeline conflicts
+             - Medical history discrepancies
+
+          3. **Methodological Inconsistencies**
+             - Stated methodology vs. actual procedures
+             - Cherry-picked data or tests
+             - Ignored negative findings
+
+          4. **Omissions**
+             - Missing differential diagnoses
+             - Unconsidered alternative causes
+             - Ignored confounding factors
+
+          **Output Format:**
+          ## 🚨 CONTRADICTION SUMMARY
+
+          ### Critical Contradictions
+          [List top 3-5 most damaging contradictions]
+
+          ### Detailed Findings
+          [Structured analysis of each contradiction]
+
+        tools:
+          - enabled: true
+            type: knowledge_retrieval
+            tool_label: "Case File Search"
+            
+    - id: "1726383037580"
+      position:
+        x: 992
+        y: 282
+      type: llm
+      data:
+        title: "Find Precedent"
+        type: llm
+        variables: []
+        model:
+          provider: openai
+          name: gpt-4-turbo-preview
+          mode: chat
+          completion_params:
+            temperature: 0.3
+            top_p: 0.95
+            max_tokens: 6000
+        context:
+          enabled: true
+          variable_selector:
+            - "1726383037578"
+            - "text"
+            - "1726383037579"
+            - "text"
+        prompt: |
+          You are a legal research specialist focusing on finding precedent that supports challenging expert witness testimony.
+
+          **Expert Analysis Summary:**
+          {{#1726383037578.text#}}
+
+          **Contradictions Found:**
+          {{#1726383037579.text#}}
+
+          **Jurisdiction:** {{#1726383037577.jurisdiction#}}
+
+          **Your Task:** Search for precedent cases that:
+
+          1. **Challenge Similar Methodologies**
+             - Cases excluding experts using similar techniques
+             - Rulings on specific Daubert/Frye factors
+             - Appellate decisions on methodology reliability
+
+          2. **Address Expert Qualifications**
+             - Cases limiting expert testimony scope
+             - Rulings on "professional witness" bias
+             - Decisions on expertise-opinion mismatch
+
+          3. **Support Exclusion Arguments**
+             - Precedent on lack of fit to case facts
+             - Rulings on speculative opinions
+             - Cases excluding cumulative expert testimony
+
+          **Output Format:**
+          ## LEGAL PRECEDENT SUPPORTING EXCLUSION
+
+          ### Directly On-Point Cases
+          [Detailed case analysis with citations]
+
+          ### Methodology-Specific Precedent
+          [Cases challenging specific methodologies]
+
+          ### Strategic Citations
+          [Top cases to lead with]
+
+        tools:
+          - enabled: true
+            type: api_request
+            api:
+              method: post
+              url: "https://api.lexisnexis.com/v1/search"
+              headers:
+                Authorization: "Basic {{#1726383037577.user_ID#}}:{{#1726383037577.database_password#}}"
+              body:
+                query: "{{#query#}}"
+                jurisdiction: "{{#1726383037577.jurisdiction#}}"
+                
+    - id: "1726383037581"
+      position:
+        x: 1296
+        y: 282
+      type: llm
+      data:
+        title: "Draft Argument"
+        type: llm
+        variables: []
+        model:
+          provider: openai
+          name: gpt-4-turbo-preview
+          mode: chat
+          completion_params:
+            temperature: 0.4
+            top_p: 0.95
+            max_tokens: 8000
+        context:
+          enabled: true
+          variable_selector:
+            - "1726383037578"
+            - "text"
+            - "1726383037579"
+            - "text"
+            - "1726383037580"
+            - "text"
+        prompt: |
+          You are a senior litigation attorney drafting the argument section of a {{#1726383037577.brief_type#}}.
+
+          **Comprehensive Analysis:**
+          - Expert Analysis: {{#1726383037578.text#}}
+          - Contradictions: {{#1726383037579.text#}}
+          - Legal Precedent: {{#1726383037580.text#}}
+
+          **Draft Requirements:**
+          1. Use formal legal writing style
+          2. Apply MLA citation format for all references
+          3. Structure arguments from strongest to weakest
+          4. Anticipate and address counterarguments
+          5. Use persuasive language appropriate for judicial audience
+
+          {% if #1726383037577.brief_type# == "Daubert/Frye motion" %}
+          ## ARGUMENT
+
+          ### I. INTRODUCTION
+          [2-3 paragraphs setting up why exclusion is warranted]
+
+          ### II. [EXPERT NAME]'S OPINIONS FAIL THE DAUBERT/FRYE STANDARD
+          [Detailed analysis of each Daubert factor]
+
+          ### III. THE EXPERT'S TESTIMONY CONTAINS FATAL CONTRADICTIONS
+          [Detail key contradictions with evidence citations]
+
+          ### IV. ESTABLISHED PRECEDENT MANDATES EXCLUSION
+          [Apply precedent to expert's specific failings]
+
+          ### V. CONCLUSION
+          [Strong closing arguing for complete exclusion]
+          {% endif %}
+
+          [Continue with appropriate structure based on brief type]
+
+    - id: "1726383037582"
+      position:
+        x: 1600
+        y: 282
+      type: end
+      data:
+        title: "End"
+        type: end
+        outputs:
+          - variable: motion_text
+            type: string
+            value_selector:
+              - "1726383037581"
+              - "text"
+          - variable: analysis_summary
+            type: string
+            value_selector:
+              - "1726383037578"
+              - "text"
+          - variable: contradictions_found
+            type: string
+            value_selector:
+              - "1726383037579"
+              - "text"
+          - variable: precedent_research
+            type: string
+            value_selector:
+              - "1726383037580"
+              - "text"
+
+  edges:
+    - id: "1726383037577-1726383037578"
+      source: "1726383037577"
+      target: "1726383037578"
+      
+    - id: "1726383037578-1726383037579"
+      source: "1726383037578"
+      target: "1726383037579"
+      
+    - id: "1726383037579-1726383037580"
+      source: "1726383037579"
+      target: "1726383037580"
+      
+    - id: "1726383037580-1726383037581"
+      source: "1726383037580"
+      target: "1726383037581"
+      
+    - id: "1726383037581-1726383037582"
+      source: "1726383037581"
+      target: "1726383037582"
+      
+  viewport:
+    x: 0
+    y: 0
+    zoom: 1

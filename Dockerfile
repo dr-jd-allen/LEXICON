@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Install GCP-specific dependencies
 RUN pip install --no-cache-dir \
-    google-cloud-sql-connector[pg8000] \
+    cloud-sql-python-connector[pg8000] \
     google-cloud-storage \
     google-cloud-logging \
     google-cloud-secret-manager

@@ -4,11 +4,11 @@
 steps:
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/lexicon:$COMMIT_SHA', '.']
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/lexicon:latest', '.']
     
   # Push the image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/lexicon:$COMMIT_SHA']
+    args: ['push', 'gcr.io/$PROJECT_ID/lexicon:latest']
     
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
@@ -17,14 +17,14 @@ steps:
       - 'run'
       - 'deploy'
       - 'lexicon'
-      - '--image=gcr.io/$PROJECT_ID/lexicon:$COMMIT_SHA'
+      - '--image=gcr.io/$PROJECT_ID/lexicon:latest'
       - '--region=us-central1'
       - '--platform=managed'
       - '--allow-unauthenticated'
       - '--set-env-vars=ENVIRONMENT=production'
       - '--set-env-vars=GCP_PROJECT_ID=$PROJECT_ID'
       - '--add-cloudsql-instances=$PROJECT_ID:us-central1:lexicon-db'
-      - '--service-account=service-420297122003@gcp-sa-run.iam.gserviceaccount.com'
+      - '--service-account=lexicon-sa@spinwheel-464709.iam.gserviceaccount.com'
       - '--memory=8Gi'
       - '--cpu=4'
       - '--timeout=900'
@@ -51,14 +51,8 @@ timeout: '1200s'
 
 # Machine type for build
 options:
-  machineType: 'E2_HIGHCPU_8'
-  
-# Substitutions for environment-specific deployments
-substitutions:
-  _REGION: us-central1
-  _SERVICE_NAME: lexicon
+  machineType: 'E2_HIGHCPU_8' 
   
 # Images to be pushed
 images:
-  - 'gcr.io/$PROJECT_ID/lexicon:$COMMIT_SHA'
   - 'gcr.io/$PROJECT_ID/lexicon:latest'

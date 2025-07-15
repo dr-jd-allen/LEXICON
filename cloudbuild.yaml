@@ -24,7 +24,7 @@ steps:
       - '--set-env-vars=ENVIRONMENT=production'
       - '--set-env-vars=GCP_PROJECT_ID=$PROJECT_ID'
       - '--add-cloudsql-instances=$PROJECT_ID:us-central1:lexicon-db'
-      - '--service-account=lexicon-sa@$PROJECT_ID.iam.gserviceaccount.com'
+      - '--service-account=service-420297122003@gcp-sa-run.iam.gserviceaccount.com'
       - '--memory=8Gi'
       - '--cpu=4'
       - '--timeout=900'

@@ -94,12 +94,20 @@ fi
 # Check service account
 echo ""
 echo "5. Checking service account..."
+# Try custom SA first, then default Cloud Run SA
 SA_EMAIL="lexicon-sa@$PROJECT_ID.iam.gserviceaccount.com"
 if gcloud iam service-accounts describe $SA_EMAIL --project=$PROJECT_ID &>/dev/null; then
     echo "✅ Service account exists: $SA_EMAIL"
 else
-    echo "❌ Service account missing. Run: ./gcp_config/setup_gcp_resources.sh"
-    exit 1
+    echo "⚠️  Custom service account not found, checking default Cloud Run SA..."
+    PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+    SA_EMAIL="service-$PROJECT_NUMBER@gcp-sa-run.iam.gserviceaccount.com"
+    if gcloud iam service-accounts describe $SA_EMAIL --project=$PROJECT_ID &>/dev/null; then
+        echo "✅ Using default Cloud Run service account: $SA_EMAIL"
+    else
+        echo "❌ No suitable service account found. Run: ./gcp_config/setup_gcp_resources.sh"
+        exit 1
+    fi
 fi
 
 # Check Cloud SQL instance

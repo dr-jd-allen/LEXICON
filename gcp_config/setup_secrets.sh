@@ -65,10 +65,21 @@ create_secret "encryption-key" "Encryption key for sensitive data"
 # Grant access to service account
 echo ""
 echo "Granting Secret Manager access to service account..."
+
+# Check if custom service account exists, otherwise use default Cloud Run SA
+SERVICE_ACCOUNT="lexicon-sa@$PROJECT_ID.iam.gserviceaccount.com"
+if ! gcloud iam service-accounts describe $SERVICE_ACCOUNT --project=$PROJECT_ID &>/dev/null; then
+    echo "Custom service account not found. Using default Cloud Run service account..."
+    # Get project number
+    PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format="value(projectNumber)")
+    SERVICE_ACCOUNT="service-$PROJECT_NUMBER@gcp-sa-run.iam.gserviceaccount.com"
+fi
+
+echo "Using service account: $SERVICE_ACCOUNT"
+
 gcloud projects add-iam-policy-binding $PROJECT_ID \
-    --member="serviceAccount:lexicon-sa@$PROJECT_ID.iam.gserviceaccount.com" \
-    --role="roles/secretmanager.secretAccessor" \
-    --condition=None
+    --member="serviceAccount:$SERVICE_ACCOUNT" \
+    --role="roles/secretmanager.secretAccessor"
 
 echo ""
 echo "=== Secret Manager Setup Complete ==="

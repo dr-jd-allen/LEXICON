@@ -1,0 +1,35 @@
+# Core dependencies
+openai==1.12.0
+redis==5.0.1
+chromadb==0.4.22
+flask==3.0.0
+flask-cors==4.0.0
+python-dotenv==1.0.0
+aiohttp==3.9.1
+
+# Scientific research specific
+biopython==1.82
+pubmed-parser==0.3.1
+scholarly==1.7.11
+arxiv==2.1.0
+crossref-commons==0.0.7
+
+# Medical NLP
+scispacy==0.5.3
+en-core-sci-md @ https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.3/en_core_sci_md-0.5.3.tar.gz
+medspacy==1.1.2
+
+# Data processing
+pandas==2.1.4
+numpy==1.26.2
+scipy==1.11.4
+
+# Knowledge storage
+sqlalchemy==2.0.23
+alembic==1.13.1
+
+# Utilities
+pydantic==2.5.3
+tenacity==8.2.3
+loguru==0.7.2
+prometheus-client==0.19.0

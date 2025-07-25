@@ -1,0 +1,125 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+!.env.test
+
+# API Keys and Secrets
+*_api_key*
+*_secret*
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+chroma-data/
+redis-data/
+vector_store/
+
+# Generated files
+generated-briefs/
+lexicon-output/
+uploads/
+*.log
+test_results_*.log
+processing_*.json
+
+# Build artifacts
+installer/output/
+frontend/build/
+launcher/dist/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+nul
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Large corpus data (using Git LFS for these)
+# Commented out to include in private repo with anonymization
+# tbi-corpus/raw/**/*.pdf
+# tbi-corpus/processed/**/*.pdf
+# tbi-corpus/converted_from_wpd/**/*.pdf
+
+# Sensitive legal documents (still excluded)
+**/client_data/
+**/confidential/
+**/sealed_records/
+**/unanonymized/
+**/original_documents/
+
+# Cache
+.cache/
+*.cache
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Python virtual environments
+bin/
+include/
+lib/
+lib64/
+share/
+pyvenv.cfg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Test outputs
+.pytest_cache/
+.tox/
+
+# Package lock files (optional - you may want to commit these)
+# package-lock.json
+# yarn.lock

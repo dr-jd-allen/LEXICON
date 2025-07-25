@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>LEXICON Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%);
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-app-region: drag;
+            user-select: none;
+        }
+        
+        .titlebar {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .titlebar h1 {
+            color: white;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .close-btn {
+            -webkit-app-region: no-drag;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px 15px;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .container {
+            flex: 1;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+            padding: 40px;
+            overflow-y: auto;
+            -webkit-app-region: no-drag;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo img {
+            width: 80px;
+            height: 80px;
+        }
+        
+        h2 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e5e7eb;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #1e3a8a;
+        }
+        
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #1e3a8a;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #1e40af;
+        }
+        
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+        
+        .optional-badge {
+            display: inline-block;
+            background: #e5e7eb;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-left: 5px;
+        }
+        
+        .progress {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #1e3a8a;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="titlebar">
+        <h1>LEXICON Setup Wizard</h1>
+        <button class="close-btn" onclick="cancelSetup()">×</button>
+    </div>
+    
+    <div class="container">
+        <div class="logo">
+            <svg width="80" height="80" viewBox="0 0 100 100">
+                <rect x="10" y="10" width="80" height="80" fill="#1e3a8a" rx="10"/>
+                <path d="M30 70 L30 30 L50 30 L50 50 L30 50 M50 70 L50 50 L70 50" 
+                      stroke="white" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </div>
+        
+        <h2>Welcome to LEXICON</h2>
+        <p class="subtitle">Let's set up your AI-powered legal brief generation system</p>
+        
+        <form id="setupForm">
+            <div class="section">
+                <h3 class="section-title">Required API Keys</h3>
+                <p class="help-text" style="margin-bottom: 15px;">
+                    LEXICON uses multiple AI providers. You'll need API keys from each service.
+                </p>
+                
+                <div class="form-group">
+                    <label>Anthropic API Key (Claude)</label>
+                    <input type="password" id="anthropicKey" required>
+                    <p class="help-text">Get your key at <a href="#" onclick="openLink('https://console.anthropic.com')">console.anthropic.com</a></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>OpenAI API Key</label>
+                    <input type="password" id="openaiKey" required>
+                    <p class="help-text">Get your key at <a href="#" onclick="openLink('https://platform.openai.com')">platform.openai.com</a></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>Google AI API Key</label>
+                    <input type="password" id="googleKey" required>
+                    <p class="help-text">Get your key at <a href="#" onclick="openLink('https://makersuite.google.com/app/apikey')">makersuite.google.com</a></p>
+                </div>
+                
+                <div class="form-group">
+                    <label>SerpAPI Key</label>
+                    <input type="password" id="serpapiKey" required>
+                    <p class="help-text">Get your key at <a href="#" onclick="openLink('https://serpapi.com')">serpapi.com</a></p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">Optional Services</h3>
+                
+                <div class="form-group">
+                    <label>CourtListener API Key <span class="optional-badge">Optional</span></label>
+                    <input type="password" id="courtlistenerKey">
+                    <p class="help-text">For enhanced legal research capabilities</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>PubMed API Key <span class="optional-badge">Optional</span></label>
+                    <input type="password" id="pubmedKey">
+                    <p class="help-text">For medical literature access</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3 class="section-title">Storage Location</h3>
+                
+                <div class="form-group">
+                    <label>Document Storage Path</label>
+                    <input type="text" id="dataPath" value="C:\\Users\\%USERNAME%\\Documents\\LEXICON" required>
+                    <p class="help-text">Where your briefs and documents will be saved</p>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="cancelSetup()">Cancel</button>
+                <button type="submit" class="btn-primary">Complete Setup</button>
+            </div>
+        </form>
+        
+        <div class="progress" id="progress">
+            <div class="spinner"></div>
+            <p>Setting up LEXICON...</p>
+        </div>
+    </div>
+    
+    <script>
+        const { ipcRenderer, shell } = require('electron');
+        const path = require('path');
+        const os = require('os');
+        
+        // Set default path with actual username
+        document.getElementById('dataPath').value = path.join(os.homedir(), 'Documents', 'LEXICON');
+        
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show progress
+            document.getElementById('setupForm').style.display = 'none';
+            document.getElementById('progress').style.display = 'block';
+            
+            const config = {
+                apiKeys: {
+                    ANTHROPIC_API_KEY: document.getElementById('anthropicKey').value,
+                    OPENAI_API_KEY: document.getElementById('openaiKey').value,
+                    GOOGLE_API_KEY: document.getElementById('googleKey').value,
+                    SERPAPI_API_KEY: document.getElementById('serpapiKey').value,
+                    COURTLISTENER_API_KEY: document.getElementById('courtlistenerKey').value || '',
+                    PUBMED_API_KEY: document.getElementById('pubmedKey').value || ''
+                },
+                dataPath: document.getElementById('dataPath').value
+            };
+            
+            // Send configuration to main process
+            ipcRenderer.send('setup-complete', config);
+        });
+        
+        function cancelSetup() {
+            if (confirm('Are you sure you want to cancel setup?')) {
+                ipcRenderer.send('setup-cancel');
+            }
+        }
+        
+        function openLink(url) {
+            shell.openExternal(url);
+        }
+    </script>
+</body>
+</html>

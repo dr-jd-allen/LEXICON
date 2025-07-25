@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>LEXICON WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>LEXICON WebSocket Connection Test</h1>
+    <div id="status">Connecting...</div>
+    <button onclick="testProgress()">Test Progress Updates</button>
+    <div id="messages"></div>
+    
+    <script>
+        const socket = io('http://localhost:5001', {
+            transports: ['websocket', 'polling']
+        });
+        
+        const status = document.getElementById('status');
+        const messages = document.getElementById('messages');
+        
+        socket.on('connect', () => {
+            status.innerHTML = '✅ Connected to backend!';
+            console.log('Connected with ID:', socket.id);
+            addMessage('Connected to LEXICON backend');
+        });
+        
+        socket.on('disconnect', () => {
+            status.innerHTML = '❌ Disconnected from backend';
+            addMessage('Disconnected from backend');
+        });
+        
+        socket.on('connected', (data) => {
+            addMessage('Server says: ' + JSON.stringify(data));
+        });
+        
+        socket.on('progress_update', (data) => {
+            addMessage(`Progress: ${data.stage} - ${data.progress}%`);
+        });
+        
+        socket.on('brief_complete', (data) => {
+            addMessage('Brief complete: ' + JSON.stringify(data));
+        });
+        
+        function testProgress() {
+            // Trigger a test brief generation
+            fetch('http://localhost:5001/api/generate-brief', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    expert_name: 'Test Expert',
+                    strategy: 'challenge',
+                    motion_type: 'Daubert Motion'
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                addMessage('API Response: ' + JSON.stringify(data));
+            })
+            .catch(err => {
+                addMessage('API Error: ' + err.message);
+            });
+        }
+        
+        function addMessage(msg) {
+            const div = document.createElement('div');
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + msg;
+            messages.appendChild(div);
+            console.log(msg);
+        }
+    </script>
+</body>
+</html>

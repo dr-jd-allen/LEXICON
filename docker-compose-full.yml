@@ -1,0 +1,223 @@
+version: '3.8'
+
+services:
+  # Nginx API Gateway
+  nginx:
+    image: nginx:alpine
+    container_name: lexicon-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - orchestrator
+      - legal-research
+      - scientific-research
+      - writer
+      - editor
+      - mcp-hub
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+
+  # ChromaDB Vector Database
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: lexicon-chromadb
+    ports:
+      - "8100:8000"
+    volumes:
+      - ./chroma-data:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Redis Cache & Inter-Agent Communication
+  redis:
+    image: redis:7-alpine
+    container_name: lexicon-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    command: redis-server --appendonly yes --notify-keyspace-events AKE
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  # MCP Server Hub (Model Context Protocol)
+  mcp-hub:
+    build: ./docker/mcp-hub
+    container_name: lexicon-mcp-hub
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - MCP_CONFIG_PATH=/app/mcp-config.json
+    depends_on:
+      - redis
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./mcp-config.json:/app/mcp-config.json:ro
+      - ./logs/mcp:/app/logs
+
+  # Agent 1: Claude Opus 4 Orchestrator
+  orchestrator:
+    build: ./docker/agent-orchestrator
+    container_name: lexicon-orchestrator
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - CHROMA_URL=http://chromadb:8000
+      - AGENT_ROLE=orchestrator
+      - MCP_SERVER_ENABLED=true
+    depends_on:
+      - chromadb
+      - redis
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./logs/orchestrator:/app/logs
+      - ./uploads:/app/uploads
+      - ./tbi-corpus:/app/corpus:ro
+      - ./mcp-config.json:/app/mcp-config.json:ro
+
+  # Agent 2: o3-pro-deep-research - Legal Analyst
+  legal-research:
+    build: ./docker/agent-legal-research
+    container_name: lexicon-legal-research
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY}
+      - COURTWHISPERER_API_KEY=${COURTWHISPERER_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - CHROMA_URL=http://chromadb:8000
+      - AGENT_MODEL=o3-pro-deep-research
+      - REASONING_EFFORT=high
+    depends_on:
+      - redis
+      - chromadb
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./logs/legal:/app/logs
+      - ./tbi-corpus:/app/corpus:ro
+
+  # Agent 3: o4-mini-deep-research - Scientific Domain Specialist
+  scientific-research:
+    build: ./docker/agent-scientific-research
+    container_name: lexicon-scientific-research
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PUBMED_API_KEY=${PUBMED_API_KEY}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - CHROMA_URL=http://chromadb:8000
+      - AGENT_MODEL=o4-mini-deep-research
+      - ENABLE_DOMAIN_KNOWLEDGE_STORAGE=true
+    depends_on:
+      - redis
+      - chromadb
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./logs/scientific:/app/logs
+      - ./tbi-corpus:/app/corpus:ro
+      - ./domain-knowledge:/app/knowledge
+
+  # Agent 4: gpt-4.5-research-preview - Brief Writer
+  writer:
+    build: ./docker/agent-writer
+    container_name: lexicon-writer
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - AGENT_MODEL=gpt-4.5-research-preview
+      - ENABLE_LEGAL_STRATEGIES=true
+    depends_on:
+      - redis
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./logs/writer:/app/logs
+      - ./generated-briefs:/app/output
+      - ./legal-strategies:/app/strategies:ro
+
+  # Agent 5: Gemini 2.5 Pro - Editor/Fact-Checker
+  editor:
+    build: ./docker/agent-editor
+    container_name: lexicon-editor
+    environment:
+      - GOOGLEAI_STUDIO_API_KEY=${GOOGLEAI_STUDIO_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - SERPAPI_API_KEY=${SERPAPI_API_KEY}
+      - REDIS_URL=redis://redis:6379
+      - AGENT_MODEL=gemini-2.5-pro
+      - ENABLE_GOOGLE_SEARCH_GROUNDING=true
+      - MLA_STYLE_VERSION=9th
+    depends_on:
+      - redis
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./logs/editor:/app/logs
+      - ./generated-briefs:/app/briefs
+      - ./firm-templates:/app/templates:ro
+
+  # Web Interface
+  webapp:
+    build: .
+    container_name: lexicon-webapp
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_ENV=production
+      - API_GATEWAY_URL=http://nginx:8000
+      - REDIS_URL=redis://redis:6379
+      - ENABLE_ANONYMIZATION=true
+      - ENABLE_STRATEGIC_RECOMMENDATIONS=true
+      - MAX_UPLOAD_SIZE=100MB
+    depends_on:
+      - nginx
+      - orchestrator
+      - mcp-hub
+    networks:
+      - lexicon-network
+    restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
+      - ./generated-briefs:/app/generated-briefs
+      - ./strategic-recommendations:/app/recommendations
+
+networks:
+  lexicon-network:
+    driver: bridge
+
+volumes:
+  chroma-data:
+  redis-data:
+  logs:
+  domain-knowledge:
+  legal-strategies:
+  firm-templates:

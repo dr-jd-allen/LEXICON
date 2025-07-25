@@ -1,0 +1,47 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\jdall\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-filesystem\\dist\\index.js",
+        "C:\\Users\\jdall\\lexicon-mvp-alpha\\tbi-corpus"
+      ],
+      "env": {
+        "FILESYSTEM_READ_ONLY": "false"
+      },
+      "description": "Direct access to LEXICON legal corpus for all agents"
+    },
+    "context": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@context/mcp-server"
+      ],
+      "env": {
+        "CONTEXT_SERVER_PATH": "C:\\Users\\jdall\\lexicon-mvp-alpha\\context-store"
+      },
+      "description": "Persistent memory across LEXICON sessions - tracks case strategies, research history, and brief outcomes"
+    },
+    "firecrawl": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\jdall\\AppData\\Roaming\\npm\\node_modules\\@mendable\\firecrawl-mcp-server\\dist\\index.js"
+      ],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      },
+      "description": "Enhanced web scraping for court opinions, legal databases, and scientific literature"
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "Version control for brief templates, legal arguments, and collaborative editing"
+    }
+  }
+}

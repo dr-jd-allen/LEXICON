@@ -1,0 +1,290 @@
+/* LEXICON Custom Styles */
+
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #34495e;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --info-color: #3498db;
+    --light-bg: #ecf0f1;
+    --dark-text: #2c3e50;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--light-bg);
+    color: var(--dark-text);
+}
+
+/* Navigation */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+/* Cards */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+}
+
+/* Sidebar */
+.list-group-item {
+    border: none;
+    transition: all 0.2s;
+}
+
+.list-group-item.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.list-group-item:hover:not(.active) {
+    background-color: var(--light-bg);
+    transform: translateX(5px);
+}
+
+/* Expert List */
+#expert-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#expert-list .list-group-item {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+/* Search Results */
+.search-result-card {
+    transition: all 0.2s;
+}
+
+.search-result-card:hover {
+    background-color: #f8f9fa;
+}
+
+/* Progress Bars */
+.progress {
+    height: 25px;
+    border-radius: 15px;
+}
+
+.progress-bar {
+    border-radius: 15px;
+    transition: width 0.3s ease;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 25px;
+    padding: 0.5rem 1.5rem;
+    transition: all 0.2s;
+    border: none;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}
+
+/* Forms */
+.form-control, .form-select {
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    padding: 0.75rem 1.25rem;
+    transition: all 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--info-color);
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Badges */
+.badge {
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    font-weight: normal;
+}
+
+/* Status Indicator */
+#status-indicator .fa-circle {
+    font-size: 0.5rem;
+    vertical-align: middle;
+}
+
+/* File Upload Area */
+#file-input {
+    border: 2px dashed #ddd;
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+}
+
+#file-input:hover {
+    border-color: var(--info-color);
+    background-color: #f8f9fa;
+}
+
+/* Modal */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+}
+
+.modal-header {
+    border-radius: 15px 15px 0 0;
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+/* Brief Preview */
+#brief-preview {
+    max-height: 500px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    font-family: 'Courier New', monospace;
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+/* Loading Spinner */
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border-width: 0.3rem;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    .btn {
+        padding: 0.375rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Legal Document Styling */
+.legal-section {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border-left: 4px solid var(--primary-color);
+    background-color: #f8f9fa;
+}
+
+.legal-section h5 {
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* History Table */
+.table {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.table thead {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+    cursor: pointer;
+}
+
+/* Alert Styling */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+.alert-success {
+    background-color: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+}
+
+.alert-danger {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+}
+
+.alert-info {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: var(--info-color);
+}

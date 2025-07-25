@@ -1,0 +1,133 @@
+version: '3.8'
+
+services:
+  # Nginx for local hosting (with SSL)
+  nginx:
+    image: nginx:alpine
+    container_name: lexicon-nginx-local
+    ports:
+      - "80:80"      # HTTP
+      - "443:443"    # HTTPS
+      - "8000:8000"  # API Gateway
+    volumes:
+      - ./nginx-local.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./frontend/build:/usr/share/nginx/html:ro
+      - ./logs/nginx:/var/log/nginx
+    depends_on:
+      - webapp
+      - chromadb
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+  # ChromaDB with persistent local storage
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: lexicon-chromadb-local
+    ports:
+      - "8100:8000"
+    volumes:
+      - ./local-storage/chromadb:/chroma/chroma
+      - ./backups/chromadb:/backups
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma
+      - ANONYMIZED_TELEMETRY=FALSE
+      - CHROMA_SERVER_AUTH_PROVIDER=chromadb.auth.token.TokenAuthServerProvider
+      - CHROMA_SERVER_AUTH_CREDENTIALS_PROVIDER=chromadb.auth.token.TokenConfigServerAuthCredentialsProvider
+      - CHROMA_SERVER_AUTH_TOKEN_TRANSPORT_HEADER=AUTHORIZATION
+      - CHROMA_SERVER_AUTH_TOKEN=${CHROMA_AUTH_TOKEN:-lexicon-secure-token-2024}
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+  # Redis with persistence and backup
+  redis:
+    image: redis:7-alpine
+    container_name: lexicon-redis-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./local-storage/redis:/data
+      - ./redis-local.conf:/usr/local/etc/redis/redis.conf:ro
+    command: redis-server /usr/local/etc/redis/redis.conf
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+  # Main web application
+  webapp:
+    build: .
+    container_name: lexicon-webapp-local
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - REDIS_URL=redis://redis:6379
+      - CHROMA_URL=http://chromadb:8000
+      - CHROMA_AUTH_TOKEN=${CHROMA_AUTH_TOKEN:-lexicon-secure-token-2024}
+      - UPLOAD_FOLDER=/app/local-storage/uploads
+      - GENERATED_BRIEFS_FOLDER=/app/local-storage/generated-briefs
+      - MAX_CONTENT_LENGTH=104857600  # 100MB max file size
+      - CORS_ORIGINS=http://localhost,https://localhost,http://localhost:3000
+    volumes:
+      - ./local-storage/uploads:/app/local-storage/uploads
+      - ./local-storage/generated-briefs:/app/local-storage/generated-briefs
+      - ./local-storage/anonymized:/app/local-storage/anonymized
+      - ./local-storage/case-summaries:/app/local-storage/case-summaries
+      - ./local-storage/strategic-recommendations:/app/local-storage/strategic-recommendations
+      - ./logs/webapp:/app/logs
+      - ./tbi-corpus:/app/corpus:ro
+    depends_on:
+      - redis
+      - chromadb
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+  # Backup service
+  backup:
+    image: alpine:latest
+    container_name: lexicon-backup-local
+    volumes:
+      - ./local-storage:/data:ro
+      - ./backups:/backups
+      - ./backup-scripts:/scripts:ro
+    command: crond -f -l 2
+    environment:
+      - BACKUP_RETENTION_DAYS=30
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+  # Local file server for document access
+  fileserver:
+    image: halverneus/static-file-server:latest
+    container_name: lexicon-fileserver-local
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./local-storage/generated-briefs:/web/briefs:ro
+      - ./local-storage/strategic-recommendations:/web/recommendations:ro
+    environment:
+      - FOLDER=/web
+      - PORT=8080
+      - SHOW_LISTING=true
+      - URL_PREFIX=/files
+    networks:
+      - lexicon-local
+    restart: unless-stopped
+
+networks:
+  lexicon-local:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+volumes:
+  local-storage:
+  backups:
+  logs:

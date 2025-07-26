@@ -19,6 +19,7 @@ import queue
 # Import our LEXICON components
 from lexicon_complete_package import LEXICONCompleteSystem
 from document_processor import DocumentProcessor
+from validators import BriefGenerationValidator, ValidationError, create_validation_error_response
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
@@ -142,10 +143,17 @@ def list_experts():
 def generate_brief():
     """Generate a legal brief"""
     try:
-        data = request.json
-        expert_name = data.get('expert_name')
-        strategy = data.get('strategy', 'challenge')
-        motion_type = data.get('motion_type')
+        data = request.json or {}
+        
+        # Validate input
+        try:
+            validated_data = BriefGenerationValidator.validate_request(data)
+            expert_name = validated_data['expert_name']
+            strategy = validated_data['strategy']
+            motion_type = validated_data['motion_type']
+            jurisdiction = validated_data['jurisdiction']
+        except ValidationError as e:
+            return create_validation_error_response(e)
         
         # Generate unique task ID
         task_id = f"brief_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{secrets.token_hex(4)}"
@@ -153,7 +161,7 @@ def generate_brief():
         # Start async generation in background
         threading.Thread(
             target=async_generate_brief,
-            args=(task_id, expert_name, strategy, motion_type)
+            args=(task_id, expert_name, strategy, motion_type, jurisdiction)
         ).start()
         
         return jsonify({
@@ -168,7 +176,7 @@ def generate_brief():
             'error': str(e)
         }), 500
 
-def async_generate_brief(task_id, expert_name, strategy, motion_type):
+def async_generate_brief(task_id, expert_name, strategy, motion_type, jurisdiction='federal'):
     """Run brief generation in background"""
     with app.app_context():
         try:

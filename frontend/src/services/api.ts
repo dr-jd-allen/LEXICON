@@ -1,6 +1,7 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 import { GenerateBriefRequest, GenerateBriefResponse, BriefGenerationStatus } from '../types';
+import { parseApiError } from './errorHandler';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
 const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || 'http://localhost:5001';
@@ -77,7 +78,8 @@ export const generateBrief = async ({
           }
         });
       } else {
-        reject(new Error(data.error || 'Brief generation failed'));
+        const error = parseApiError({ response: { data: { message: data.error }, status: 500 } });
+        reject(error);
       }
     });
 
@@ -103,7 +105,8 @@ export const generateBrief = async ({
     })
     .catch((error) => {
       socket.disconnect();
-      reject(error);
+      const parsedError = parseApiError(error);
+      reject(parsedError);
     });
   });
 };

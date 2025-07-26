@@ -1,0 +1,89 @@
+# LEXICON Consolidated Requirements
+# Updated: July 2025
+
+# Core AI/ML Libraries
+anthropic==0.39.0  # TODO: Update to latest when API changes are tested
+openai==1.35.0
+google-generativeai==0.5.4
+langchain==0.2.5
+langchain-anthropic==0.1.19
+langchain-openai==0.1.17
+langchain-google-genai==1.0.10
+langchain-community==0.2.5
+
+# Web Framework
+flask==3.0.3
+flask-cors==4.0.1
+flask-socketio==5.3.6
+python-socketio==5.11.2
+
+# Database and Storage
+chromadb==0.5.3
+redis==5.0.7
+pymongo==4.7.3
+
+# Document Processing
+pypdf2==3.0.1
+PyPDF2==3.0.1
+python-docx==1.1.2
+python-pptx==0.6.23
+beautifulsoup4==4.12.3
+lxml==5.2.2
+chardet==5.2.0
+openpyxl==3.1.5
+
+# NLP and Text Processing
+spacy==3.7.5
+tiktoken==0.7.0
+nltk==3.8.1
+sentence-transformers==3.0.1
+
+# Anonymization
+presidio-analyzer==2.2.354
+presidio-anonymizer==2.2.354
+
+# API Clients
+serpapi==0.1.5
+google-search-results==2.4.2
+requests==2.32.3
+httpx==0.27.0
+aiohttp==3.9.5
+
+# Async and Concurrency
+asyncio==3.4.3
+websockets==12.0
+aiofiles==23.2.1
+
+# Data Processing
+pandas==2.2.2
+numpy==1.26.4
+pydantic==2.8.2
+marshmallow==3.21.3
+
+# Utilities
+python-dotenv==1.0.1
+tenacity==8.5.0
+loguru==0.7.2
+click==8.1.7
+rich==13.7.1
+tqdm==4.66.4
+
+# Testing
+pytest==8.2.2
+pytest-asyncio==0.23.7
+pytest-cov==5.0.0
+
+# Monitoring
+prometheus-client==0.20.0
+
+# Development
+black==24.4.2
+flake8==7.1.0
+mypy==1.10.1
+pre-commit==3.7.1
+
+# Optional Dependencies for specific features
+# Uncomment as needed:
+# boto3==1.34.0  # AWS integration
+# azure-storage-blob==12.20.0  # Azure integration
+# google-cloud-storage==2.17.0  # GCP integration

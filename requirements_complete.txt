@@ -1,33 +1,8 @@
-# LEXICON Complete System Requirements
-# Install with: pip install -r requirements_complete.txt
+# This file is deprecated - use requirements.txt instead
+# All dependencies have been consolidated into a single requirements.txt file
+# with updated versions and better organization.
 
-# Core AI Libraries
-anthropic>=0.58.0
-openai>=1.97.0
-google-generativeai>=0.3.0
+# To install all dependencies:
+# pip install -r requirements.txt
 
-# Vector Database & Embeddings
-chromadb>=1.0.0
-langchain>=0.3.0
-
-# Document Processing
-PyPDF2>=3.0.0
-python-docx>=1.2.0
-pypandoc>=1.15
-lxml>=6.0.0
-
-# Web & Async
-requests>=2.32.0
-aiohttp>=3.9.0
-beautifulsoup4>=4.12.0
-lxml>=6.0.0
-aiofiles>=23.2.0
-
-# Environment & Utils
-python-dotenv>=1.0.0
-colorlog>=6.8.0
-
-# Additional Dependencies
-numpy>=1.22.0
-typing_extensions>=4.9.0
-pydantic>=2.0.0
+-r requirements.txt

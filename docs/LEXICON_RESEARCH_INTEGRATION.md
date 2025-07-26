@@ -4,7 +4,7 @@
 LEXICON uses a multi-agent architecture where each agent has specific research capabilities. All agents use the same SerpAPI key for Google Scholar access, but with different search strategies.
 
 ## API Configuration
-- **SerpAPI Key**: `c6434b985f91dda9d0f7c0a8f5be1ecceac8d4a57ef27b5d11b8d9a207eab807`
+- **SerpAPI Key**: Set via `SERPAPI_API_KEY` environment variable
 - **No separate Google Scholar API needed** - SerpAPI provides access
 
 ## Agent Research Capabilities
